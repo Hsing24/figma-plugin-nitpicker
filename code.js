@@ -61,9 +61,12 @@ function createComparisonFrame(results) {
 
 		results.forEach((result, index) => {
 			const text = figma.createText();
-			text.characters = result;
+			text.characters = result.replace(/(從|變成了|遺失了|新增了)/g, match => {
+				return `<span style="color: #000">${match}</span>`;
+			});
 			text.fontSize = 14;
-			// text.fontName = { family: "Inter", style: "Regular" };
+			text.fontName = { family: "Inter", style: "Regular" };
+			text.fills = [{ type: 'SOLID', color: { r: 0.666, g: 0.666, b: 0.666 } }]; // #aaa
 			text.y = index * 20;
 			frame.appendChild(text);
 		});
