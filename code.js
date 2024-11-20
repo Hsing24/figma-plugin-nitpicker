@@ -72,28 +72,29 @@ function getCSSStyles(node) {
 	const gap = node.itemSpacing !== undefined ? `${node.itemSpacing}px` : '0px';
 
 	const cssStyles = {
+		display: display,
+		gap: gap,
+		position: position,
+		top: top,
+		left: left,
+		right: right,
+		bottom: bottom,
 		width: `${width}px`,
 		height: `${height}px`,
 		margin: margin,
 		padding: padding,
-		backgroundColor: fillColor,
+		translate: translate,
+		rotate: rotate,
 		border: border,
 		borderRadius: borderRadius,
 		boxShadow: boxShadow,
+		backgroundColor: fillColor,
 		opacity: opacity,
 		fontSize: fontSize,
 		fontFamily: fontFamily,
 		fontWeight: fontWeight,
 		textAlign: textAlign,
-		position: position,
-		translate: translate,
-		rotate: rotate,
-		display: display,
-		top: top,
-		left: left,
-		right: right,
-		bottom: bottom,
-		gap: gap
+		color: color
 	};
 
 	return cssStyles;
