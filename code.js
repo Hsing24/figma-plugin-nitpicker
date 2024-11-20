@@ -41,7 +41,8 @@ function getCSSStyles(node) {
 		return '';
 	}).join(', ') : 'none';
 
-	const margin = node.layoutPositioning === 'AUTO' ? `${node.layoutGrow * 100}%` : '0px';
+	const margin = node.layoutPositioning === 'AUTO' ? `${node.layoutGrow * 100}%` : `${node.marginLeft || 0}px ${node.marginTop || 0}px ${node.marginRight || 0}px ${node.marginBottom || 0}px`;
+
 	const padding = node.paddingLeft !== undefined ? `${node.paddingLeft}px ${node.paddingTop}px ${node.paddingRight}px ${node.paddingBottom}px` : '0px';
 
 	const border = node.strokes && node.strokes.length > 0 ? node.strokes.map(stroke => {
@@ -54,29 +55,45 @@ function getCSSStyles(node) {
 		return fillColor;
 	}).join(', ') : 'none';
 
-	const font = node.fontName ? `${node.fontSize}px ${node.fontName.family}` : 'inherit';
+	const fontSize = node.fontSize ? `${node.fontSize}px` : 'inherit';
+	const fontFamily = node.fontName ? node.fontName.family : 'inherit';
+	const fontWeight = node.fontName ? node.fontName.style : 'normal';
 	const textAlign = node.textAlignHorizontal ? node.textAlignHorizontal.toLowerCase() : 'left';
 
 	const position = node.relativeTransform ? 'absolute' : 'relative';
-	const translate = node.relativeTransform ? `${node.relativeTransform[0][2]}px ${node.relativeTransform[1][2]}px` : 'none';
+	const translate = node.relativeTransform ? `${node.relativeTransform[0][2]}px, ${node.relativeTransform[1][2]}px` : 'none';
 	const rotate = node.rotation ? `${node.rotation}deg` : 'none';
+
+	const display = node.layoutMode ? (node.layoutMode === 'NONE' ? 'block' : node.layoutMode.toLowerCase()) : 'block';
+	const top = node.y !== undefined ? `${node.y}px` : 'auto';
+	const left = node.x !== undefined ? `${node.x}px` : 'auto';
+	const right = node.width !== undefined && node.x !== undefined ? `${node.x + node.width}px` : 'auto';
+	const bottom = node.height !== undefined && node.y !== undefined ? `${node.y + node.height}px` : 'auto';
+	const gap = node.itemSpacing !== undefined ? `${node.itemSpacing}px` : '0px';
 
 	const cssStyles = {
 		width: `${width}px`,
 		height: `${height}px`,
-		backgroundColor: fillColor,
-		opacity: opacity,
-		borderRadius: borderRadius,
-		boxShadow: boxShadow,
 		margin: margin,
 		padding: padding,
+		backgroundColor: fillColor,
 		border: border,
-		color: color,
-		font: font,
+		borderRadius: borderRadius,
+		boxShadow: boxShadow,
+		opacity: opacity,
+		fontSize: fontSize,
+		fontFamily: fontFamily,
+		fontWeight: fontWeight,
 		textAlign: textAlign,
 		position: position,
 		translate: translate,
 		rotate: rotate,
+		display: display,
+		top: top,
+		left: left,
+		right: right,
+		bottom: bottom,
+		gap: gap
 	};
 
 	return cssStyles;
