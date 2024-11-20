@@ -1,11 +1,8 @@
-figma.showUI(__html__, { width: 300, height: 400 });
+figma.showUI(__html__, { width: 300, height: 200 });
 
 figma.ui.onmessage = (msg) => {
 	if (msg.type === 'getStyles') {
 		const selection = figma.currentPage.selection;
-		console.log("🚀 -------------------------🚀")
-		console.log("🚀 ~ selection:", selection)
-		console.log("🚀 -------------------------🚀")
 		if (selection.length === 2) {
 			const frame1 = selection[0];
 			const frame2 = selection[1];
@@ -22,10 +19,6 @@ figma.ui.onmessage = (msg) => {
 
 
 function getCSSStyles(node) {
-	console.log("🚀 ---------------🚀")
-	console.log("🚀 ~ node:", node)
-	console.log("🚀 ~ node keys:", Object.keys(node))
-	console.log("🚀 ---------------🚀")
 	const width = node.width;
 	const height = node.height;
 	const fill = node.fills && node.fills.length > 0 ? node.fills[0].color : null;
