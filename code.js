@@ -11,7 +11,7 @@ figma.ui.onmessage = (msg) => {
 			console.log('Frame 1 Styles:', cssStyles1);
 			console.log('Frame 2 Styles:', cssStyles2);
 		} else {
-			figma.notify('請選擇兩個 frame');
+			figma.notify('請選擇兩個區塊💢');
 		}
 	}
 };
