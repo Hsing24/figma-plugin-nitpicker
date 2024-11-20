@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSS Style Comparator</title>
+  </head>
+  <body>
+    <h1>CSS Style Comparator</h1>
+    <p>請在 Figma 中選擇兩個 frame 進行比較。</p>
+    <button id="showStylesButton">顯示樣式</button>
+    <div id="styles1"></div>
+    <div id="styles2"></div>
+    <script>
+      // 獲取按鈕元素
+      const showStylesButton = document.getElementById("showStylesButton");
+
+      // 添加按钮点击事件
+      showStylesButton.addEventListener("click", () => {
+        parent.postMessage({ pluginMessage: { type: "getStyles" } }, "*");
+      });
+
+      // 接收來自 code.js 的消息
+      onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (message.type === "showStyles") {
+          // 在 UI 中顯示 frame 的 CSS 樣式
+          const frame1Styles = message.styles1;
+          const frame2Styles = message.styles2;
+
+          // 將 CSS 樣式顯示在 <div> 中
+          const styles1Div = document.getElementById("styles1");
+          styles1Div.textContent = frame1Styles;
+
+          const styles2Div = document.getElementById("styles2");
+          styles2Div.textContent = frame2Styles;
+        }
+      };
+    </script>
+  </body>
+</html>
