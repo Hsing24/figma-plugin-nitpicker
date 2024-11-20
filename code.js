@@ -10,7 +10,8 @@ figma.ui.onmessage = (msg) => {
 			const cssStyles2 = getAllNodeStyles(frame2);
 			console.log('Frame 1 Styles:', cssStyles1);
 			console.log('Frame 2 Styles:', cssStyles2);
-			compareStyles(cssStyles1, cssStyles2);
+			const comparisonResults = compareStyles(cssStyles1, cssStyles2);
+			createComparisonFrame(comparisonResults);
 		} else {
 			figma.notify('請選擇兩個區塊💢');
 		}
@@ -18,31 +19,60 @@ figma.ui.onmessage = (msg) => {
 };
 
 function compareStyles(styles1, styles2) {
+	let results = [];
 	for (const key in styles1) {
 		if (styles2.hasOwnProperty(key)) {
 			for (const styleName in styles1[key]) {
 				if (styles2[key].hasOwnProperty(styleName)) {
 					if (styles1[key][styleName] !== styles2[key][styleName]) {
-						console.log(`${key} 的 ${styleName} 從 ${styles1[key][styleName]} 變成了 ${styles2[key][styleName]}`);
+						results.push(`${key} 的 ${styleName} 從 ${styles1[key][styleName]} 變成了 ${styles2[key][styleName]}`);
 					}
 				} else {
 					console.log(`${key} 遺失了 ${styleName}`);
+					results.push(`${key} 遺失了 ${styleName}`);
 				}
 			}
 			for (const styleName in styles2[key]) {
 				if (!styles1[key].hasOwnProperty(styleName)) {
 					console.log(`${key} 新增了 ${styleName}`);
+					results.push(`${key} 新增了 ${styleName}`);
 				}
 			}
 		} else {
 			console.log(`cssStyles2 遺失了 ${key}`);
+			results.push(`cssStyles2 遺失了 ${key}`);
 		}
 	}
 	for (const key in styles2) {
 		if (!styles1.hasOwnProperty(key)) {
 			console.log(`cssStyles2 新增了 ${key}`);
+			results.push(`cssStyles2 新增了 ${key}`);
 		}
 	}
+	return results;
+}
+
+function createComparisonFrame(results) {
+	figma.loadFontAsync({ family: "Inter", style: "Regular" }).then(() => {
+		const frame = figma.createFrame();
+		frame.resize(400, results.length * 20 + 20);
+		frame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+		frame.name = 'Comparison Results';
+
+		results.forEach((result, index) => {
+			const text = figma.createText();
+			text.characters = result;
+			text.fontSize = 14;
+			// text.fontName = { family: "Inter", style: "Regular" };
+			text.y = index * 20;
+			frame.appendChild(text);
+		});
+
+		figma.currentPage.appendChild(frame);
+		figma.viewport.scrollAndZoomIntoView([frame]);
+	}).catch(err => {
+		console.error('Error loading font:', err);
+	});
 }
 
 function getCSSStyles(node) {
