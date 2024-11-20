@@ -1,0 +1,64 @@
+<!-- ui.html -->
+<style>
+  body {
+    font-family: Inter, sans-serif;
+    padding: 20px;
+  }
+  .container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .diff-item {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  .property-name {
+    font-weight: 600;
+    color: #333;
+  }
+  .value {
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 2px 4px;
+    border-radius: 2px;
+  }
+  .different {
+    background: #fff3f3;
+  }
+</style>
+
+<div class="container">
+  <div id="output"></div>
+</div>
+
+<script>
+  window.onmessage = async (event) => {
+    const message = event.data.pluginMessage;
+
+    if (message.type === "style-comparison") {
+      const outputDiv = document.getElementById("output");
+
+      // 清空先前的內容
+      outputDiv.innerHTML = "";
+
+      // 顯示差異
+      const differences = message.differences;
+      for (const [property, values] of Object.entries(differences)) {
+        const diffDiv = document.createElement("div");
+        diffDiv.className = "diff-item different";
+        diffDiv.innerHTML = `
+        <div class="property-name">${property}</div>
+        <div>${message.frame1.name}: <span class="value">${JSON.stringify(
+          values.frame1
+        )}</span></div>
+        <div>${message.frame2.name}: <span class="value">${JSON.stringify(
+          values.frame2
+        )}</span></div>
+      `;
+        outputDiv.appendChild(diffDiv);
+      }
+    }
+  };
+</script>
