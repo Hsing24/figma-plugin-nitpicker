@@ -10,7 +10,7 @@ figma.ui.onmessage = (msg) => {
 			const cssStyles2 = getAllNodeStyles(frame2);
 			console.log('Frame 1 Styles:', cssStyles1);
 			console.log('Frame 2 Styles:', cssStyles2);
-			const comparisonResults = compareStyles(cssStyles1, cssStyles2);
+			const comparisonResults = compareStyles(cssStyles1, cssStyles2, frame1.name, frame2.name);
 			createComparisonFrame(comparisonResults);
 		} else {
 			figma.notify('請選擇兩個區塊💢');
@@ -18,37 +18,89 @@ figma.ui.onmessage = (msg) => {
 	}
 };
 
-function compareStyles(styles1, styles2) {
-	let results = [];
+function compareStyles(styles1, styles2, beforeName, afterName) {
+	const results = [];
+	let action = null;
+	let beforeValue = null;
+	let afterValue = null;
+	let style = null;
+
 	for (const key in styles1) {
+
 		if (styles2.hasOwnProperty(key)) {
-			for (const styleName in styles1[key]) {
-				if (styles2[key].hasOwnProperty(styleName)) {
-					if (styles1[key][styleName] !== styles2[key][styleName]) {
-						results.push(`${key} 的 ${styleName} 從 ${styles1[key][styleName]} 變成了 ${styles2[key][styleName]}`);
+			const style1 = styles1[key];
+			const style2 = styles2[key];
+
+			for (const styleName in style1) {
+				if (style2.hasOwnProperty(styleName)) {
+					if (style1[styleName] !== style2[styleName]) {
+						action = '變成了';
+						beforeValue = style1[styleName];
+						afterValue = style2[styleName];
+						style = styleName;
+						break;
 					}
 				} else {
-					console.log(`${key} 遺失了 ${styleName}`);
-					results.push(`${key} 遺失了 ${styleName}`);
+					action = '遺失了';
+					beforeValue = style1[styleName];
+					style = styleName;
+					break;
 				}
 			}
-			for (const styleName in styles2[key]) {
-				if (!styles1[key].hasOwnProperty(styleName)) {
-					console.log(`${key} 新增了 ${styleName}`);
-					results.push(`${key} 新增了 ${styleName}`);
+
+			if (!action) {
+				for (const styleName in style2) {
+					if (!style1.hasOwnProperty(styleName)) {
+						action = '新增了';
+						afterValue = style2[styleName];
+						style = styleName;
+						break;
+					}
 				}
 			}
 		} else {
-			console.log(`cssStyles2 遺失了 ${key}`);
-			results.push(`cssStyles2 遺失了 ${key}`);
+			action = '遺失了';
+			beforeValue = styles1[key];
+			style = key;
+		}
+
+		if (action) {
+			results.push({
+				beforeName,
+				afterName,
+				style,
+				action,
+				beforeValue,
+				afterValue
+			});
+		} else {
+			console.log('竟然有例外狀況？？');
+			console.log({
+				beforeName,
+				afterName,
+				style,
+				action,
+				beforeValue,
+				afterValue
+			});
 		}
 	}
+
 	for (const key in styles2) {
 		if (!styles1.hasOwnProperty(key)) {
-			console.log(`cssStyles2 新增了 ${key}`);
-			results.push(`cssStyles2 新增了 ${key}`);
+			results.push({
+				beforeName,
+				afterName,
+				style: key,
+				action: '新增了',
+				beforeValue: null,
+				afterValue: key
+			});
 		}
 	}
+	console.log("🚀 ---------------------🚀")
+	console.log("🚀 ~ results:", results)
+	console.log("🚀 ---------------------🚀")
 	return results;
 }
 
@@ -61,9 +113,15 @@ function createComparisonFrame(results) {
 
 		results.forEach((result, index) => {
 			const text = figma.createText();
-			text.characters = result.replace(/(從|變成了|遺失了|新增了)/g, match => {
-				return `<span style="color: #000">${match}</span>`;
-			});
+			let resultText = `${result.style} 的 ${result.action}`;
+			if (result.action === '變成了') {
+				resultText += ` 從 ${result.beforeValue} 變成了 ${result.afterValue}`;
+			} else if (result.action === '遺失了') {
+				resultText += ` ${result.beforeValue}`;
+			} else if (result.action === '新增了') {
+				resultText += ` ${result.afterValue}`;
+			}
+			text.characters = resultText;
 			text.fontSize = 14;
 			text.fontName = { family: "Inter", style: "Regular" };
 			text.fills = [{ type: 'SOLID', color: { r: 0.666, g: 0.666, b: 0.666 } }]; // #aaa
