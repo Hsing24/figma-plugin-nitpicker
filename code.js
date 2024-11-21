@@ -113,18 +113,41 @@ function createComparisonFrame(results) {
 
 		results.forEach((result, index) => {
 			const text = figma.createText();
-			let resultText = `${result.style} 的 ${result.action}`;
-			if (result.action === '變成了') {
-				resultText += ` 從 ${result.beforeValue} 變成了 ${result.afterValue}`;
-			} else if (result.action === '遺失了') {
-				resultText += ` ${result.beforeValue}`;
-			} else if (result.action === '新增了') {
-				resultText += ` ${result.afterValue}`;
-			}
-			text.characters = resultText;
 			text.fontSize = 14;
 			text.fontName = { family: "Inter", style: "Regular" };
-			text.fills = [{ type: 'SOLID', color: { r: 0.666, g: 0.666, b: 0.666 } }]; // #aaa
+
+			const segments = [
+				{ text: result.style, color: { r: 1, g: 1, b: 0 } }, // yellow
+				{ text: ' 的 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
+				{ text: result.action, color: { r: 0, g: 0, b: 1 } }, // blue
+			];
+
+			if (result.action === '變成了') {
+				segments.push(
+					{ text: ' 從 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
+					{ text: result.beforeValue, color: { r: 1, g: 0, b: 0 } }, // red
+					{ text: ' 變成了 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
+					{ text: result.afterValue, color: { r: 0, g: 1, b: 0 } } // green
+				);
+			} else if (result.action === '遺失了') {
+				segments.push(
+					{ text: ' ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
+					{ text: result.beforeValue, color: { r: 1, g: 0, b: 0 } } // red
+				);
+			} else if (result.action === '新增了') {
+				segments.push(
+					{ text: ' ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
+					{ text: result.afterValue, color: { r: 0, g: 1, b: 0 } } // green
+				);
+			}
+
+			let currentIndex = 0;
+			segments.forEach(segment => {
+				text.insertCharacters(currentIndex, segment.text);
+				text.setRangeFills(currentIndex, currentIndex + segment.text.length, [{ type: 'SOLID', color: segment.color }]);
+				currentIndex += segment.text.length;
+			});
+
 			text.y = index * 20;
 			frame.appendChild(text);
 		});
