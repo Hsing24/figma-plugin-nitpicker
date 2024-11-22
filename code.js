@@ -8,8 +8,10 @@ figma.ui.onmessage = (msg) => {
 			const frame2 = selection[1];
 			const cssStyles1 = getAllNodeStyles(frame1);
 			const cssStyles2 = getAllNodeStyles(frame2);
-			console.log('Frame 1 Styles:', cssStyles1);
-			console.log('Frame 2 Styles:', cssStyles2);
+			console.log("🚀 ---------------------------🚀")
+			console.log("🚀 ~ cssStyles1:", cssStyles1)
+			console.log("🚀 ~ cssStyles2:", cssStyles2)
+			console.log("🚀 ---------------------------🚀")
 			const comparisonResults = compareStyles(cssStyles1, cssStyles2, frame1.name, frame2.name);
 			createComparisonFrame(comparisonResults);
 		} else {
@@ -24,6 +26,7 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 	let beforeValue = null;
 	let afterValue = null;
 	let style = null;
+	let nodeName = null;
 
 	for (const key in styles1) {
 
@@ -37,12 +40,14 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 						action = '變成了';
 						beforeValue = style1[styleName];
 						afterValue = style2[styleName];
+						nodeName = key;
 						style = styleName;
 						break;
 					}
 				} else {
-					action = '遺失了';
+					action = '刪除了';
 					beforeValue = style1[styleName];
+					nodeName = key;
 					style = styleName;
 					break;
 				}
@@ -54,14 +59,16 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 						action = '新增了';
 						afterValue = style2[styleName];
 						style = styleName;
+						nodeName = key;
 						break;
 					}
 				}
 			}
 		} else {
-			action = '遺失了';
+			action = '刪除了';
 			beforeValue = styles1[key];
 			style = key;
+			nodeName = key;
 		}
 
 		if (action) {
@@ -71,7 +78,8 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 				style,
 				action,
 				beforeValue,
-				afterValue
+				afterValue,
+				nodeName
 			});
 		} else {
 			console.log('竟然有例外狀況？？');
@@ -81,7 +89,8 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 				style,
 				action,
 				beforeValue,
-				afterValue
+				afterValue,
+				nodeName
 			});
 		}
 	}
@@ -94,7 +103,8 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 				style: key,
 				action: '新增了',
 				beforeValue: null,
-				afterValue: key
+				afterValue: key,
+				nodeName: key
 			});
 		}
 	}
@@ -107,37 +117,52 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 function createComparisonFrame(results) {
 	figma.loadFontAsync({ family: "Inter", style: "Regular" }).then(() => {
 		const frame = figma.createFrame();
-		frame.resize(400, results.length * 20 + 20);
+		frame.resize(460, results.length * 20 + 60); // Adjust width and height for padding
 		frame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
 		frame.name = 'Comparison Results';
+		frame.paddingLeft = 30;
+		frame.paddingRight = 30;
+		frame.paddingTop = 30;
+		frame.paddingBottom = 30;
 
 		results.forEach((result, index) => {
 			const text = figma.createText();
-			text.fontSize = 14;
-			text.fontName = { family: "Inter", style: "Regular" };
+			const defaultColor = { r: 0.858, g: 0.827, b: 0.827 }; // #DBD3D3
+			const styleColor = { r: 0, g: 0, b: 0 }; // #000000
+			const modifyColor = { r: 0.376, g: 0.400, b: 0.463 }; // #606676
+			const addColor = { r: 0.447, g: 0.749, b: 0.471 }; // #72BF78
+			const deleteColor = { r: 0.976, g: 0.329, b: 0.329 }; // #F95454
+			const originValueColor = { r: 0.008, g: 0.298, b: 0.667 }; // #024CAA
+			const changedColor = { r: 0.035, g: 0.063, b: 0.341 }; // #091057
 
-			const segments = [
-				{ text: result.style, color: { r: 1, g: 1, b: 0 } }, // yellow
-				{ text: ' 的 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
-				{ text: result.action, color: { r: 0, g: 0, b: 1 } }, // blue
-			];
+			text.fontSize = 14;
+			const segments = [];
 
 			if (result.action === '變成了') {
 				segments.push(
-					{ text: ' 從 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
-					{ text: result.beforeValue, color: { r: 1, g: 0, b: 0 } }, // red
-					{ text: ' 變成了 ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
-					{ text: result.afterValue, color: { r: 0, g: 1, b: 0 } } // green
+					{ text: result.afterName, color: modifyColor },
+					{ text: ' - ', color: modifyColor },
+					{ text: result.nodeName, color: modifyColor },
+					{ text: ' 的 ', color: defaultColor },
+					{ text: result.style, color: styleColor },
+					{ text: ' 要從 ', color: defaultColor },
+					{ text: result.beforeValue, color: originValueColor },
+					{ text: ' -> ', color: defaultColor },
+					{ text: result.afterValue, color: changedColor }
 				);
-			} else if (result.action === '遺失了') {
+			} else if (result.action === '刪除了') {
 				segments.push(
-					{ text: ' ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
-					{ text: result.beforeValue, color: { r: 1, g: 0, b: 0 } } // red
+					{ text: '刪除了 ', color: deleteColor },
+					{ text: result.beforeName, color: deleteColor },
+					{ text: ' 的 ', color: deleteColor },
+					{ text: result.nodeName, color: deleteColor },
 				);
 			} else if (result.action === '新增了') {
 				segments.push(
-					{ text: ' ', color: { r: 0.666, g: 0.666, b: 0.666 } }, // default color
-					{ text: result.afterValue, color: { r: 0, g: 1, b: 0 } } // green
+					{ text: '新增了 ', color: defaultColor },
+					{ text: result.afterName, color: addColor },
+					{ text: ' 的 ', color: defaultColor },
+					{ text: result.nodeName, color: addColor }
 				);
 			}
 
