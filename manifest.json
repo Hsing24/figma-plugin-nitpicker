@@ -1,0 +1,7 @@
+{
+  "name": "CSS Style Comparator",
+  "id": "YOUR_PLUGIN_ID", 
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"]
+}
