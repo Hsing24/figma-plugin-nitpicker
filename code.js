@@ -125,6 +125,11 @@ function createComparisonFrame(results) {
 		frame.paddingTop = 30;
 		frame.paddingBottom = 30;
 
+		// Position the frame relative to frame2
+		const frame2 = figma.currentPage.selection[1];
+		frame.x = frame2.x + frame2.width + 100;
+		frame.y = frame2.y;
+
 		results.forEach((result, index) => {
 			const text = figma.createText();
 			const defaultColor = { r: 0.858, g: 0.827, b: 0.827 }; // #DBD3D3
