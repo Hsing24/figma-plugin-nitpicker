@@ -29,6 +29,11 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 	let nodeName = null;
 
 	for (const key in styles1) {
+		action = null;
+		beforeValue = null;
+		afterValue = null;
+		style = null;
+		nodeName = null;
 
 		if (styles2.hasOwnProperty(key)) {
 			const style1 = styles1[key];
@@ -108,9 +113,6 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 			});
 		}
 	}
-	console.log("🚀 ---------------------🚀")
-	console.log("🚀 ~ results:", results)
-	console.log("🚀 ---------------------🚀")
 	return results;
 }
 
