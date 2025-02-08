@@ -117,18 +117,20 @@ function compareStyles(styles1, styles2, beforeName, afterName) {
 function createComparisonFrame(results) {
 	figma.loadFontAsync({ family: "Inter", style: "Regular" }).then(() => {
 		const frame = figma.createFrame();
-		frame.resize(460, results.length * 20 + 60); // Adjust width and height for padding
 		frame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
 		frame.name = 'Comparison Results';
-		frame.paddingLeft = 30;
-		frame.paddingRight = 30;
-		frame.paddingTop = 30;
-		frame.paddingBottom = 30;
+		frame.paddingLeft = 20;
+		frame.paddingRight = 20;
+		frame.paddingTop = 20;
+		frame.paddingBottom = 20;
 
-		// Position the frame relative to frame2
-		const frame2 = figma.currentPage.selection[1];
-		frame.x = frame2.x + frame2.width + 100;
-		frame.y = frame2.y;
+		frame.layoutMode = "VERTICAL";
+		frame.itemSpacing = 10;
+
+		// Comparison Results 定位
+		const afterFrame = figma.currentPage.selection[1];
+		frame.x = afterFrame.x + afterFrame.width + 100;
+		frame.y = afterFrame.y;
 
 		results.forEach((result, index) => {
 			const text = figma.createText();
