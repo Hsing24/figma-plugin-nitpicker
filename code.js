@@ -185,6 +185,11 @@ function createComparisonFrame(results) {
 		});
 
 		figma.currentPage.appendChild(frame);
+
+		// 寬高根據內容自動調整
+		frame.layoutSizingHorizontal = "HUG";
+		frame.layoutSizingVertical = "HUG";
+
 		figma.viewport.scrollAndZoomIntoView([frame]);
 	}).catch(err => {
 		console.error('Error loading font:', err);
